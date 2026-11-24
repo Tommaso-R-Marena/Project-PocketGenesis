@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.hypothesis/
+formalization/.lake/
+formalization/lake-packages/
+manuscript/*.aux
+manuscript/*.log
+manuscript/*.out
+manuscript/*.toc
+manuscript/*.bbl
+manuscript/*.blg
+manuscript/*.fdb_latexmk
+manuscript/*.fls
+experiments/structural/pdb_cache/
+*.egg-info/

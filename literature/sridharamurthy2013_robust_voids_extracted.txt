@@ -1,0 +1,490 @@
+Eurographics Conference on Visualization (EuroVis) (2013) Short Papers
+M. Hlawitschka and T. Weinkauf (Editors)
+Extraction of Robust Voids and Pockets in Proteins
+Raghavendra Sridharamurthy1, Harish Doraiswamy2, Siddharth Patel1, Raghavan Varadarajan1 and Vijay Natarajan1
+1Indian Institute of Science, Bangalore
+2Polytechnic Institute of New York University, USA
+Abstract
+Voids and pockets in a protein refer to empty spaces that are enclosed by the protein molecule. Existing methods
+to compute, measure, and visualize the voids and pockets in a protein molecule are sensitive to inaccuracies in the
+empirically determined atomic radii. This paper presents a topological framework that enables robust computation
+and visualization of these structures. Given a ﬁxed set of atoms, voids and pockets are represented as subsets of
+the weighted Delaunay triangulation of atom centers. A novel notion of(ε, π)-stable voids helps identify voids that
+are stable even after perturbing the atom radii by a small value. An efﬁcient method is described to compute these
+stable voids for a given input pair of values (ε, π).
+Categories and Subject Descriptors (according to ACM CCS) : I.3.6 [Computer Graphics]: Computer Graphics—
+Methodology and Techniques
+1. Introduction
+Protein molecules have a well packed structure, yet they con-
+tain cavities. A cavity refers to both voids (without openings)
+and pockets (with openings). These cavities play a key role
+in determining the stability and function of proteins.
+Several methods have been proposed to locate such cav-
+ities in protein molecules. We focus our attention on geo-
+metric methods. Edelsbrunner et al. [EF94,EK05] and Liang
+et al. [LEF ∗98, LEW98] propose a deﬁnition that is based
+on the theory of alpha shapes and discrete ﬂows in De-
+launay triangulations. Kim et al. [KCS ∗10, KS12] propose
+a deﬁnition of cavities based on an alternate representa-
+tion of a set of atoms called beta shapes that faithfully
+captures proximity. Tools based on the above approach are
+available and widely used [DOT∗06, KLE04, KRSC12]. Till
+and Ullmann [TU10] employ a graph theoretic algorithm
+to identify cavities and compute their volume. Parulek et
+al. [PTRV12] use graph based methods on the implicit rep-
+resentation of molecular surfaces to identify pockets and
+potential binding sites. Varadarajan et al. [CBV02] employ
+a Monte Carlo procedure to position water molecules to-
+gether with a V oronoi region-based method to locate empty
+space. They discuss the importance of accurate identiﬁca-
+tion of cavities for the study of protein structure and stability.
+Novel V oronoi diagram-based techniques for the extraction
+and visualization of cavities have also been developed from
+the viewpoint of studying and interactively exploring access
+paths to active sites [POB∗06, PKKO07, LBH11, LBBH12].
+Krone et al. [KFR∗11] present a visualization tool for inter-
+active exploration of protein cavities in dynamic data.
+1.1. Motivation and Problem Statement
+The input used for calculations in previous work come from
+x-ray crystallography data or other lower resolution data.
+Previous cavity detection methods are sensitive to inaccura-
+cies that are inherent in the crystallographic measurements.
+While the measurements may guarantee high resolution, it
+is important to note that even small inaccuracies may cause
+a signiﬁcant difference in the reported number of cavities.
+The inaccuracies may also arise due to some fundamental
+limitations such as the notion of radii of atoms, which is de-
+termined empirically. For example, as illustrated in Figure 1,
+presence of such inaccuracies may result in a cavity detec-
+tion method to report two distinct but large cavities in place
+of one or report very small volume cavities. Figure 2 illus-
+trates the problem as it occurs in a lyzosyme protein.
+We aim to develop an interactive method to compute ro-
+bust cavities in proteins. We achieve this by enabling the user
+to reduce, if not completely eliminate, the inaccuracies men-
+tioned earlier. We deﬁne what robustness would mean in this
+context, why such a notion is important and also demonstrate
+the robustness of the method. As an auxiliary task, we visu-
+c© The Eurographics Association 2013.
+R. Sridharamurthy et al. / Extraction of Robust Voids and Pockets in Proteins
+Figure 1: Left: Two cavities that are apparently very near to
+each other may be a single cavity.Right: A very small cavity
+may be reported whereas no such cavity may exist.
+Figure 2: (a) Two voids that appear very near to each
+other in a lyzozyme protein (PDB ID: 200l). The solid sur-
+face represents the voids while the wireframe represents the
+molecule. (b) Zoomed-in view of the voids without the molec-
+ular skin surface. (c) The two voids may be a single void.
+alize the protein molecules and their cavities in an interactive
+manner and compute their properties.
+From the biologist’s point of view, obtaining a stable pro-
+tein is the starting point of many applications, from in-vitro
+studies of binding and interactions, to using the protein as an
+antigen or vaccine. Whereas surface pockets often form part
+of the active site of enzymes or interacting sites for other
+proteins, internal voids are often relevant structurally as fea-
+tures that affect the overall stability of the protein. It is es-
+tablished that ﬁlling up internal voids improves the packing
+of the protein thus increasing stability. In this respect, de-
+tecting and visualizing structurally robust cavities inside the
+protein informs the biologist on which mutations to perform
+to improve internal packing and get a stable protein.
+1.2. Results
+The main results described in this paper are in the con-
+text of a novel deﬁnition and method for computing robust
+and stable voids in proteins. We employ a simple and suc-
+cinct structure called the alpha complex to represent protein
+molecules. The alpha complex is a simplicial complex that
+can be stored as a ﬁltration, a series of simplicial complexes
+Ki with Ki⊂ Ki+1. With the aim of computing a set of voids
+that are stable with respect to small perturbations in the atom
+radii, we develop a method that modiﬁes the radii of a select
+set of atoms symbolically by systematically processing and
+modifying the ﬁltration. We show that this modiﬁcation re-
+sults in controlled changes in the number and properties of
+voids and does not violate key properties of the ﬁltration.
+The method also supports the elimination of very small or
+insigniﬁcant voids as measured by the notion of topological
+persistence [ELZ02]. We also develop software to visualize
+the stable cavities together with the molecule, and to calcu-
+late cavity volume and surface areas. An extended technical
+report presents additional experimental results [SDP∗13].
+2. Background
+In this section, we brieﬂy introduce the topological back-
+ground required to deﬁne and represent the structure of
+biomolecules [Mun84, Ede10, Ede04].
+Simplicial Complex. A k-simplex σ is the convex hull of
+k + 1 afﬁnely independent points. A vertex, edge, triangle,
+and tetrahedron are k-simplices of dimension 0− 3. A sim-
+plex τ is a face of σ, τ≤ σ, if it is the convex hull of a
+non-empty subset of the k + 1 points. A simplicial complex
+K is used to represent a topological space and is a ﬁnite col-
+lection of simplices such that (a) σ∈ K and τ≤ σ implies
+τ∈ K, and (b) σ1, σ2∈ K implies σ1
+⋂ σ2 is either empty or
+a face of both σ1 and σ2. A subcomplex of K is a simplicial
+complex L⊆ K.
+Voronoi diagram and Delaunay triangulation. Let S⊆
+Rd be a ﬁnite set of points. The Voronoi cell Vp, of a point
+p∈ S, is the set of points in Rd whose Euclidean distance
+to p is smaller than or equal to any other point in S. The
+collection of V oronoi cells of all points in S partitions Rd,
+and is called the Voronoi diagram (Figure 3(a)). The De-
+launay triangulation D of S is the dual of the V oronoi di-
+agram and partitions the convex hull of S, see Figure 3(b).
+The above deﬁnitions can be extended to a set of balls or
+weighted points by choosing an appropriate measure of dis-
+tance between a weighted point p and a point in Rd. The
+power distance between p and a point x∈ Rd is equal to
+πp (x) =‖x− p‖2− wp, where wp is the weight of p.
+Alpha Complex. Molecules are often represented using a
+space-ﬁlling model such as a union of balls. The weighted
+V oronoi diagram may be extended to represent the contri-
+bution from each atom to the union of balls. Consider an
+atom p. Deﬁne Bp as an open ball having the radius of the
+atom p. Let Vp be the weighted V oronoi cell corresponding
+to p, where the weight is equal to the square of the atom ra-
+dius. The contribution from each atom p is equal to Bp∩Vp,
+the intersection between the ball corresponding to the atom
+and the weighted V oronoi cell ofp. The corresponding dual
+structure is a subcomplex of the weighted Delaunay triangu-
+lation and called the dual complex, see Figure 4.
+Edelsbrunner et al. [EKS83, EM94, Ede92] consider a
+growth model where the ball radii grow, and track the
+changes in the dual complex. The growth parameter, α,
+corresponds to a radius
+√
+r2p + α2 for a ball centered at p
+with radius rp. The weight of the point w(p) increases to
+w(p) + α2. Note that α = 0 corresponds to no growth. The
+dual complex corresponding to a set of balls after they are
+grown by α is called the alpha complex.
+Given a simplicial complex K, a ﬁnite sequence, ∅ =
+K0,K1, . . . ,Km = K, of subcomplexes of K is a ﬁltration if
+K0⊂ K1⊂···⊂ Km. The rank of a subcomplex refers to its
+position in the ﬁltration. The set of alpha complexes obtained
+by varying α from−∞ to∞ is a ﬁltration of the Delaunay
+triangulation. In particular, we consider the ﬁltration that is
+c© The Eurographics Association 2013.
+R. Sridharamurthy et al. / Extraction of Robust Voids and Pockets in Proteins
+(a)
+(b)
+Figure 3: (a) Voronoi diagram of
+a point set in R2. (b) The Delaunay
+complex is the dual of the Voronoi
+diagram.
+(a)
+(b)
+Figure 4: (a) Intersection of the weighted Voronoi
+diagram and the union of balls. (b) The dual com-
+plex is the dual of this partition of the union of
+balls that captures the incidence relationship.
+(a)
+(b)
+Figure 5: (a) Void and
+(b) Pocket in a collection of
+2D balls.
+generated by inserting the simplices one at a time and ties
+broken based on the dimension of the simplex.
+Voids and Pockets. Let the alpha complex K represent a
+molecule at a given value α and D be the Delaunay complex
+of the weighted point set. A cavity is a maximally connected
+component of the complement D− K. Voids and pockets are
+cavities that are, respectively, bounded and not bounded by
+the union of balls. Figure 5 illustrates a void and a pocket
+in 2D. The alpha complex helps represent and track voids
+via the growth process.Topological persistencemeasures the
+lifetime of a void [ELZ02] and is equal to the difference be-
+tween the ranks of alpha complexes in the ﬁltration when the
+void is created and destroyed.
+3. Robust Voids and their Computation
+We introduce a notion of robust voids based on two parame-
+ters, one local and another global. The local parameter is re-
+ferred to as stability and the global parameter is speciﬁed by
+topological persistence. In order to simplify the description,
+we assume that the voids are computed for the α-complex
+corresponding to α = 0. However, the deﬁnitions, methods,
+and subsequent analysis are valid for all values of α.
+3.1. ε-stable and π-persistent voids
+Consider the interval[−ε, ε] of α values, where ε≥ 0. A void
+is called anε-stable void if it remains a single connected void
+within all α-complexes for α values in the range [−ε, ε]. In
+other words, using the lifetime terminology, the void is born,
+possibly split into multiple components, and destroyed at α-
+values that lie strictly outside of this interval. A void is π-
+persistent if its topological persistence is greater than π i.e.,
+the void size measured in terms of its lifetime is greater than
+π. Combining the two notions of robustness, we call a void
+to be (ε, π)-stable if it is both ε-stable and π-persistent.
+The above deﬁnitions help measure the stability of the
+voids when the radii are perturbed by a small value. The lo-
+cal parameter considers perturbation within a small interval
+centered at the α-value of interest whereas the global param-
+eter measures the size of the void in terms of its lifetime in
+the ﬁltration. V oids of interest may often not be stable with
+respect to both notions. For example, a large sized void ( π-
+persistent for some large π) may be born within the interval
+[−ε, ε]. However, note that a small perturbation in the radii
+of atoms that line the surface of the void could result in an
+earlier birth time, hence making the void to be ε-stable. We
+aim to extract all voids that are either stable as is or can be
+made stable via a small perturbation.
+3.2. Computing (ε, π)-voids
+The location of the atoms that constitute a protein molecule
+together with their van der Waals radii is obtained from the
+protein data bank in pdb format. Given ε and π, we compute
+the set of (ε, π)-stable voids as follows.
+1. Compute the weighted Delaunay triangulation of the in-
+put [KLE04]. The atom centers form the set of points that
+are weighted using their van der Waals radii.
+2. Build the alpha shape spectrum [Ede92], which is a ﬁl-
+tration of the weighted Delaunay triangulation.
+3. Modify the ﬁltration based on the value of ε.
+4. Compute the set of (ε, π)-stable voids by identifying all
+voids [LEF∗98] of the modiﬁed ﬁltration at α = 0, and
+retaining only those voids that have persistence at leastπ.
+Modifying the ﬁltration. The ﬁltration of the weighted De-
+launay triangulation as deﬁned by the α-values provides an
+explicit representation of the birth/death times of each void
+and the evolution during its lifetime. We propose to alter the
+birth/death times of voids by modifying the ﬁltration instead
+of directly modifying radii of atoms that line the surface
+of the void. While the latter approach follows directly from
+the deﬁnition, it is cumbersome and computationally inefﬁ-
+cient. For example, varying the radii without explicit control
+may lead to changes in the triangulation and the alpha com-
+plex. These changes need to be explicitly tracked, else they
+may lead to inconsistencies between the alpha complex that
+represents the molecule and the space-ﬁll model. Resolving
+such inconsistencies would necessitate the re-computation
+of all representations. On the other hand, the former ap-
+proach is simpler and computationally efﬁcient.
+Delayed simplex insertion. One or more simplices are in-
+serted to obtain a rank i +1 simplicial complex from a ranki
+simplicial complex in the ﬁltration. Higher ranks correspond
+to higher values of α. The topology of voids may change
+when the simplices are inserted. In particular, the insertion of
+a triangle may either not affect any void, split a void into two,
+or create a new void. On the other hand, the insertion of a
+tetrahedron always destroys a void. These topology changes
+c© The Eurographics Association 2013.
+R. Sridharamurthy et al. / Extraction of Robust Voids and Pockets in Proteins
+Figure 6: Robust voids in protein 2CI2.(a) Voids
+at α = 0 (b) (0.3,0.01)-stable voids. The violet
+and black voids merge to form a single stable
+void.
+0 0.1 0.2 0.3 0.4 0.5
+ε
+0
+1
+2
+3number of voids
+ε-stable voids
+(ε,π)–stable voids
+(a)
+0 0.1 0.2 0.3 0.4 0.5
+ε
+0
+2
+4
+6
+8
+10
+12
+14
+16Volumes (Å^3)
+volume
+(b)
+−0.4 −0.2 0 0.2 0.4
+⍺
+0
+1
+2
+3number of voids
+π-persistent voids
+(ε,π)–stable voids
+(c)
+Figure 7: Properties of stable voids of the protein 2CI2. (a) Number of
+voids decreases for larger ε. (b) Total volume of voids increases only
+marginally. (c) (ε, π)-stable voids in the neighbourhood of α = 0.
+may therefore be avoided by delaying the insertion of the
+simplices that change the topology of voids. Let K j be the
+alpha complex corresponding to α = ε. Consider the set of
+simplices, Σ, inserted into the ﬁltration for values of α in
+the range [−ε, ε]. Let Σt⊂ Σ be the set of the triangles that
+split a void, and ΣT⊂ Σ be the set of tetrahedra. We delay
+the insertion of simplices σi in Σt and ΣT such that σi /∈ K j
+but σi∈ Kl, where K j⊂ Kl⊂ D. Simplicial complexes in
+the ﬁltration of the weighted Delaunay triangulation and the
+order of simplices that are inserted to generate the ﬁltration
+satisfy several containment and incidence properties. These
+properties should be satisﬁed for the modiﬁed ﬁltration as
+well. Towards this, we propose a conservative but computa-
+tionally efﬁcient approach to modify the ﬁltration:
+1. Move all tetrahedra in ΣT to the end of the ﬁltration. All
+such tetrahedra are present in D but not in any Ki⊂ D.
+2. For each triangle in Σt, ﬁnd its incident tetrahedra τ1, τ2.
+3. Delay the insertion of the triangle and the two tetrahedra,
+τ1 and τ2, to the end of the ﬁltration.
+Implication of the modiﬁed ﬁltration. Consider the de-
+layed insertion of a triangle that causes a void to split. The
+void is no longer split into two and instead reported as a
+single connected ε-stable void. The delay corresponds to
+shrinking the atoms centered at the vertices of the triangle.
+However, note that the radii are not yet modiﬁed. We option-
+ally modify the radii later for further analysis of the void. A
+triangle that creates a void is left untouched and the corre-
+sponding void is also declared to be ε-stable. The triangle
+insertion may be advanced to ensure that the void is created
+outside the interval. This corresponds to a small increase in
+the radii of the atoms centered at the vertices of the triangle.
+We choose not to explicitly advance the triangle insertion be-
+cause it does not affect the results for small values ofε. After
+the ﬁltration is modiﬁed as described above, we recompute
+the voids from the alpha complex.
+We compute the persistence of theε-stable voids obtained
+and retain only those having persistence greater than π. This
+pruned set of voids are(ε, π)-stable. Note that the persistence
+is computed with respect to the original ﬁltration. The above
+notion of stability can be extended to pockets as well.
+Analysis. Let m be the number of simplices in the Delaunay
+triangulation of the input protein havingn atoms, m = O(n2).
+Computing the set of voids takes O(mα(m)) time using the
+union-ﬁnd data structure. Here, α is the inverse Ackermann
+function. Given ε, Σt and ΣT is computed in O(m) time us-
+ing a sequential search over the ﬁltration. Identifying the set
+of tetrahedra incident on triangles in Σt, and moving all the
+simplices to the end of the ﬁltration takes O(m) time. Thus
+the time required to modify the ﬁltration is O(mα(m)).
+4. Results
+Our software RobustVoids computes the alpha complex and
+supports its visualization for different α-values. The set of
+(ε, π)-stable cavities are computed using the values of ε and
+π speciﬁed by the user. The software also reports the cavity
+volume and surface area.
+Visualization of stable cavities. Figure 6(a) shows protein
+2CI2, which has 3 voids. Using a value of ε = 0.3 and π =
+0.01 results in two (0.3,0.01)-stable voids, see Figure 6(b).
+A value of ε = 0.3 is equivalent to an increase / decrease of
+the atom radius by at most 0.33Å, which is within the toler-
+ance limit of 0 .5Å. Modifying the ﬁltration and computing
+the stable voids for this protein takes 0.1 s.
+Properties of stable cavities. Figure 7(a) and 7(b) plots the
+number and volume of (ε, π)-stable voids for increasing val-
+ues of ε. Increasing the value of ε implies that voids from
+a larger α range are considered. This could potentially in-
+crease the number of ε-stable voids. However, such voids
+usually have low persistence and are not (ε, π)-stable. We
+use a constant value of π = 0.01 in all experiments. The to-
+tal volume of all stable voids increases marginally (< 1%)
+with increasing ε. The merging of two nearby voids into a
+single stable void does not effect the total volume. However,
+volumes of individual voids could change drastically. The
+volume of the stable void in Figure 6(b) is approximately
+equal to the sum of the volumes of the unmerged voids. The
+volumes are veriﬁed against known results [CBV02]. Fig-
+ure 7(c) shows that the number of(0.3,0.01)-stable voids do
+not change for α∈ [−0.3,0.3] as compared to the number of
+0.01-persistent volds.
+Summary. We have deﬁned a novel notion of robust cavi-
+ties that is insensitive to the perturbation of the atomic radii.
+Robust cavities are computed via a controlled modiﬁcation
+of the ﬁltration that represents the molecule and its cavities.
+This computation beneﬁts a biologist who can now perform
+tedious mutation-based experiments only on these cavities.
+Acknowledgements. This work was supported by a grant from Department of Science and
+Technology, India (SR/S3/EECE/0086/2012).
+c© The Eurographics Association 2013.
+R. Sridharamurthy et al. / Extraction of Robust Voids and Pockets in Proteins
+References
+[CBV02] C HAKRAVARTY S., B HINGE A., V ARADARAJAN R.:
+A procedure for detection and quantitation of cavity volumes in
+proteins. Journal of Biological Chemistry 277, 35 (2002), 31345–
+31353. 1, 4
+[DOT∗06] D UNDAS J., O UYANG Z., T SENG J., B INKOWSKI A.,
+TURPAZ Y., L IANG J.: CASTp: computed atlas of surface to-
+pography of proteins with structural and topographical mapping
+of functionally annotated residues. Nucleic acids research 34, 2
+(2006), W116–W118. 1
+[Ede92] E DELSBRUNNER H.: Weighted alpha shapes. Univer-
+sity of Illinois at Urbana-Champaign, Department of Computer
+Science, 1992. 2, 3
+[Ede04] E DELSBRUNNER H.: Biological applications of compu-
+tational topology. In Handbook of Discrete and Computational
+Geometry, Goodman J. E., O’Rourke J., (Eds.). CRC Press, 2004,
+pp. 1395–1412. 2
+[Ede10] E DELSBRUNNER H.: Computational Topology. An Intro-
+duction. Amer. Math. Soc., 2010. 2
+[EF94] E DELSBRUNNER H., F U P.: Measuring space ﬁlling di-
+agrams and voids . Tech. rep., UIUC-BI-MB-94-01, Beckman
+Inst., Univ. Illinois, Urbana, Illinois, 1994. 1
+[EK05] E DELSBRUNNER H., K OEHL P.: The geometry of
+biomolecular solvation. Combinatorial & Computational Geom-
+etry 52 (2005), 243–275. 1
+[EKS83] E DELSBRUNNER H., K IRKPATRICK D., S EIDEL R.:
+On the shape of a set of points in the plane. IEEE Transactions
+on Information Theory 29, 4 (1983), 551–559. 2
+[ELZ02] E DELSBRUNNER H., L ETSCHER D., Z OMORODIAN
+A.: Topological persistence and simpliﬁcation. Discrete & Com-
+putational Geometry 28, 4 (2002), 511–533. 2, 3
+[EM94] E DELSBRUNNER H., M ÜCKE E.: Three-dimensional al-
+pha shapes. ACM Transactions on Graphics (TOG) 13, 1 (1994),
+43–72. 2
+[KCS∗10] K IM D.-S., C HO Y., SUGIHARA K., R YU J., K IM D.:
+Three-dimensional beta-shapes and beta-complexes via quasi-
+triangulation. Computer-Aided Design 42, 10 (2010), 911–929.
+1
+[KFR∗11] K RONE M., FALK M., R EHM S., P LEISS J., E RTL T.:
+Interactive exploration of protein cavities. InComputer Graphics
+Forum (2011), vol. 30, pp. 673–682. 1
+[KLE04] K OEHL P., L EVITT M., E DELSBRUNNER H.:
+Proshape: understanding the shape of protein structures.
+Software at biogeometry.duke.edu/software/proshape (2004). 1,
+3
+[KRSC12] K IM D.-S., R YU J., S HIN H., C HO Y.: Beta-
+decomposition for the volume and area of the union of three-
+dimensional balls and their offsets. Journal of Computational
+Chemistry (2012). 1
+[KS12] K IM D.-S., S UGIHARA K.: Tunnels and voids in
+molecules via voronoi diagram. In Proc. Symp. Voronoi Dia-
+grams in Science and Engineering (ISVD) (2012), pp. 138–143.
+1
+[LBBH12] L INDOW N., B AUM D., B ONDAR A., H EGE H.: Dy-
+namic channels in biomolecular systems: Path analysis and visu-
+alization. In Proc. IEEE Symposium on Biological Data Visual-
+ization (BioVis) (2012), pp. 99–106. 1
+[LBH11] L INDOW N., B AUM D., H EGE H.: V oronoi-based ex-
+traction and visualization of molecular paths. Visualization and
+Computer Graphics, IEEE Transactions on 17, 12 (2011), 2025–
+2034. 1
+[LEF∗98] L IANG J., E DELSBRUNNER H., F U P., S UDHAKAR
+P., SUBRAMANIAM S.: Analytical shape computation of macro-
+molecules: II. inaccessible cavities in proteins.Proteins Structure
+Function and Genetics 33, 1 (1998), 18–29. 1, 3
+[LEW98] L IANG J., E DELSBRUNNER H., W OODWARD C.:
+Anatomy of protein pockets and cavities. Protein Science 7 , 9
+(1998), 1884–1897. 1
+[Mun84] M UNKRES J.: Elements of Algebraic Topology, vol. 2.
+Addison-Wesley Menlo Park, CA, 1984. 2
+[PKKO07] P ET ˇREK M., K OŠINOVÁ P., KO ˇCA J., O TYEPKA M.:
+MOLE: A Voronoi diagram-based explorer of molecular chan-
+nels, pores, and tunnels. Structure 15, 11 (2007), 1357–1363.
+1
+[POB∗06] P ET ˇREK M., O TYEPKA M., B ANÁŠ P., K OŠINOVÁ
+P., K O ˇCA J., D AMBORSK `Y J.: Caver: a new tool to explore
+routes from protein clefts, pockets and cavities. BMC bioinfor-
+matics 7, 1 (2006), 316. 1
+[PTRV12] P ARULEK J., T URKAY C., R EUTER N., V IOLA I.:
+Implicit surfaces for interactive graph based cavity analysis of
+molecular simulations. In Biological Data Visualization (BioVis),
+2012 IEEE Symposium on (2012), pp. 115–122. 1
+[SDP∗13] S RIDHARAMURTHY R., D ORAISWAMY H., P ATEL
+S., V ARADARAJAN R., N ATARAJAN V.: Extraction of robust
+voids and pockets in proteins. Tech. Rep. IISC-CSA-TR-2013-3,
+Department of Computer Science and Automation, Indian Insti-
+tute of Science, http://www.csa.iisc.ernet.in/TR/2013/3/, 2013. 2
+[TU10] T ILL M. S., U LLMANN G. M.: Mcvol-a program for
+calculating protein volumes and identifying cavities by a monte
+carlo algorithm. Journal of molecular modeling 16 , 3 (2010),
+419–429. 1
+c© The Eurographics Association 2013.
